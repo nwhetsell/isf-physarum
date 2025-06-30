@@ -27,8 +27,8 @@
             "MIN": 0
         },
         {
-            "NAME": "decay",
-            "LABEL": "Trail decay",
+            "NAME": "trailDecay",
+            "LABEL": "Trail trailDecay",
             "TYPE": "float",
             "DEFAULT": 0.15,
             "MAX": 10,
@@ -307,7 +307,7 @@ void main()
         trail += simulationSpeed * distr;
 
         // Pheromone decay
-        trail -= simulationSpeed * decay * trail;
+        trail -= simulationSpeed * trailDecay * trail;
 
         if (FRAMEINDEX < 1 || restart) {
             trail = vec4(0);
