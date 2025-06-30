@@ -196,7 +196,7 @@ float gauss(vec2 x, float r)
 }
 
 // Laplacian operator
-vec4 Laplace(sampler2D ch, vec2 p)
+vec4 laplacian(sampler2D ch, vec2 p)
 {
     vec3 dx = vec3(-1, 0., 1);
     return texel(ch, p + dx.xy) +
@@ -251,14 +251,14 @@ void main()
             positionOffsets[2] = vec2(0, -radius);
             positionOffsets[3] = vec2(0, radius);
             for (int i = 0; i < positionOffsetCount; i++) {
-                vec4 neighborParticle = texel(particles, wrapToRenderSize(position + positionOffsets[i]));
-                UNSCALE_PARTICLE(neighborParticle);
+                vec4 neighbor = texel(particles, wrapToRenderSize(position + positionOffsets[i]));
+                UNSCALE_PARTICLE(neighbor);
 
                 // Check if the stored neighbouring particle is closer to this position.
-                float neighborDistance = length(wrapToRenderSize(neighborParticle.xy - position + halfSize) - halfSize);
+                float neighborDistance = length(wrapToRenderSize(neighbor.xy - position + halfSize) - halfSize);
                 float particleDistance = length(wrapToRenderSize(particle.xy - position + halfSize) - halfSize);
                 if (neighborDistance < particleDistance) {
-                    particle = neighborParticle;
+                    particle = neighbor;
                 }
             }
         }
@@ -303,15 +303,13 @@ void main()
         vec4 trail = texel(trails, position);
 
         // Diffusion
-        trail += simulationSpeed * Laplace(trails, position);
+        trail += simulationSpeed * laplacian(trails, position);
 
         vec4 particle = texel(particles, position);
         UNSCALE_PARTICLE(particle);
 
-        float distr = gauss(position - particle.xy, trailSize);
-
         // Pheromone depositing
-        trail += simulationSpeed * distr;
+        trail += simulationSpeed * gauss(position - particle.xy, trailSize);
 
         // Pheromone decay
         trail -= simulationSpeed * trailDecay * trail;
