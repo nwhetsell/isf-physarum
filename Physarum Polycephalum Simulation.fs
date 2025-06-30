@@ -86,15 +86,15 @@
     "ISFVSN": "2",
     "PASSES": [
         {
-            "TARGET": "bufferA",
+            "TARGET": "agents",
             "PERSISTENT": true
         },
         {
-            "TARGET": "bufferB",
+            "TARGET": "trail",
             "PERSISTENT": true
         },
         {
-            "TARGET": "bufferC",
+            "TARGET": "diffuseTrail",
             "PERSISTENT": true
         },
         {
@@ -193,7 +193,7 @@ vec2 loop(vec2 pos)
 
 void Check(inout vec4 U, vec2 pos, vec2 dx)
 {
-    vec4 U_neighbor = texel(bufferA, loop(pos+dx));
+    vec4 U_neighbor = texel(agents, loop(pos+dx));
 
     UNSCALE_PARTICLE(U_neighbor)
 
@@ -222,7 +222,7 @@ void main()
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
         // This pixel value
-        U = texel(bufferA, pos);
+        U = texel(agents, pos);
 
         UNSCALE_PARTICLE(U);
 
@@ -244,7 +244,7 @@ void main()
         vec2 sleft = U.xy + sdist * vec2(cos(U.z + sangl), sin(U.z + sangl));
         vec2 sright = U.xy + sdist * vec2(cos(U.z - sangl), sin(U.z - sangl));
 
-        float dangl = pixel(bufferB, sleft).x - pixel(bufferB, sright).x;
+        float dangl = pixel(trail, sleft).x - pixel(trail, sright).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
@@ -269,12 +269,12 @@ void main()
     }
     else if (PASSINDEX == 1) // ShaderToy Buffer B
     {
-        Q = texel(bufferB, p);
+        Q = texel(trail, p);
 
         // Diffusion
-        Q += dt * Laplace(bufferB, p);
+        Q += dt * Laplace(trail, p);
 
-        vec4 particle = texel(bufferA, p);
+        vec4 particle = texel(agents, p);
 
         UNSCALE_PARTICLE(particle)
 
@@ -292,8 +292,8 @@ void main()
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
-        Q = texel(bufferC, p);
-        Q = 0.9 * Q + 0.1 * texel(bufferB, p);
+        Q = texel(diffuseTrail, p);
+        Q = 0.9 * Q + 0.1 * texel(trail, p);
 
         if (FRAMEINDEX < 1 || restart) {
             Q = vec4(0);
@@ -301,7 +301,7 @@ void main()
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
-        vec4 pheromone = 2.5 * texel(bufferC, pos);
+        vec4 pheromone = 2.5 * texel(diffuseTrail, pos);
         gl_FragColor = vec4(sin(pheromone.xyz * vec3(1, 1.2, 1.5)), 1.);
     }
 }
