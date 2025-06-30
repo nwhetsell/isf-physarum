@@ -9,6 +9,30 @@
             "NAME": "restart",
             "LABEL": "Restart",
             "TYPE": "event"
+        },
+        {
+            "NAME": "dt",
+            "LABEL": "Simulation speed",
+            "TYPE": "float",
+            "DEFAULT": 0.25,
+            "MAX": 1,
+            "MIN": 0
+        },
+        {
+            "NAME": "prad",
+            "LABEL": "Trail size",
+            "TYPE": "float",
+            "DEFAULT": 1.4,
+            "MAX": 10,
+            "MIN": 0
+        },
+        {
+            "NAME": "decay",
+            "LABEL": "Trail decay",
+            "TYPE": "float",
+            "DEFAULT": 0.15,
+            "MAX": 10,
+            "MIN": 0
         }
     ],
     "ISFVSN": "2",
@@ -47,11 +71,6 @@
 // unscale particle data when reading from an image.
 #define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= size; PARTICLE.zw += 0.5;
 #define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= size; PARTICLE.zw -= 0.5;
-
-//simulation variables
-#define dt 0.25
-#define prad 1.4
-#define decay 0.15
 
 //cell speed
 float pspeed = 6.;
