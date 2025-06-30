@@ -219,9 +219,9 @@ vec2 loop(vec2 pos)
 	return mod(pos, RENDERSIZE);
 }
 
-vec4 Check(vec4 particle, vec2 position, vec2 dx)
+vec4 Check(vec4 particle, vec2 position, vec2 positionOffset)
 {
-    vec4 neighborParticle = texel(particles, loop(position + dx));
+    vec4 neighborParticle = texel(particles, loop(position + positionOffset));
 
     UNSCALE_PARTICLE(neighborParticle)
 
