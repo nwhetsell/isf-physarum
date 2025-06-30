@@ -67,7 +67,7 @@
             "MIN": 0
         },
         {
-            "NAME": "sdist",
+            "NAME": "sensorDistance",
             "LABEL": "Sensor distance",
             "TYPE": "float",
             "DEFAULT": 10,
@@ -75,7 +75,7 @@
             "MIN": 0
         },
         {
-            "NAME": "sst",
+            "NAME": "sensorStrength",
             "LABEL": "Sensor strength",
             "TYPE": "float",
             "DEFAULT": 10,
@@ -83,7 +83,7 @@
             "MIN": 0
         },
         {
-            "NAME": "sangl",
+            "NAME": "sensorAngle",
             "LABEL": "Sensor angle (radians)",
             "TYPE": "float",
             "DEFAULT": 0.3,
@@ -264,14 +264,14 @@ void main()
         }
 
         // Sensors
-        vec2 sleft = particle.xy + sdist * vec2(cos(particle.z + sangl), sin(particle.z + sangl));
-        vec2 sright = particle.xy + sdist * vec2(cos(particle.z - sangl), sin(particle.z - sangl));
+        vec2 sleft = particle.xy + sensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
+        vec2 sright = particle.xy + sensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
 
         float dangl = pixel(trails, sleft).x - pixel(trails, sright).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
-        particle.z += simulationSpeed * sst * tanh(angleDifferenceFactor * dangl);
+        particle.z += simulationSpeed * sensorStrength * tanh(angleDifferenceFactor * dangl);
 
         vec2 pvel = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
