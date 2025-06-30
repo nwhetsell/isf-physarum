@@ -51,8 +51,8 @@
             "MIN": 0
         },
         {
-            "NAME": "agentCloneFactor",
-            "LABEL": "Agent clone factor",
+            "NAME": "particleCloneFactor",
+            "LABEL": "Particle clone factor",
             "TYPE": "float",
             "DEFAULT": 1,
             "MAX": 10,
@@ -260,7 +260,7 @@ void main()
 
         // Cell cloning
         if (length(particle.xy - position) > agentCloneDistance) {
-        	particle.xy += agentCloneFactor * (hash22(position) - 0.5);
+        	particle.xy += particleCloneFactor * (hash22(position) - 0.5);
         }
 
         // Sensors
