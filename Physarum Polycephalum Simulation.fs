@@ -235,7 +235,7 @@ void main()
 
         SCALE_PARTICLE(U)
     }
-    else if (PASSINDEX == 1)
+    else if (PASSINDEX == 1) // ShaderToy Buffer B
     {
         Q = texel(ch1, p);
 
@@ -256,14 +256,14 @@ void main()
 
         if(iFrame < 1 || restart) Q = vec4(0);
     }
-    else if (PASSINDEX == 2)
+    else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
         Q = texel(bufferC, p);
 
         Q = 0.9*Q + 0.1*texel(bufferB, p);
         if(iFrame < 1 || restart) Q =vec4(0);
     }
-    else if (PASSINDEX == 3)
+    else if (PASSINDEX == 3) // ShaderToy Image
     {
         vec4 pheromone = 2.5 * texel(bufferC, pos);
         gl_FragColor = vec4(sin(pheromone.xyz * vec3(1, 1.2, 1.5)), 1.);
