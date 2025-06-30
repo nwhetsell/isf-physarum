@@ -35,8 +35,8 @@
             "MIN": 0
         },
         {
-            "NAME": "pspeed",
-            "LABEL": "Agent speed",
+            "NAME": "particleSpeed",
+            "LABEL": "Particle speed",
             "TYPE": "float",
             "DEFAULT": 6,
             "MAX": 100,
@@ -273,7 +273,7 @@ void main()
 #endif
         particle.z += simulationSpeed * sst * tanh(angleDifferenceFactor * dangl);
 
-        vec2 pvel = pspeed * vec2(cos(particle.z), sin(particle.z)) + agentSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
+        vec2 pvel = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + agentSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
         particle.xy += simulationSpeed * pvel;
