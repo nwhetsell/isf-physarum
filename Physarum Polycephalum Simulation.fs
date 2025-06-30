@@ -11,7 +11,7 @@
             "TYPE": "event"
         },
         {
-            "NAME": "dt",
+            "NAME": "simulationSpeed",
             "LABEL": "Simulation speed",
             "TYPE": "float",
             "DEFAULT": 0.25,
@@ -271,12 +271,12 @@ void main()
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
-        particle.z += dt * sst * tanh(angleDifferenceFactor * dangl);
+        particle.z += simulationSpeed * sst * tanh(angleDifferenceFactor * dangl);
 
         vec2 pvel = pspeed * vec2(cos(particle.z), sin(particle.z)) + agentSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
-        particle.xy += dt * pvel;
+        particle.xy += simulationSpeed * pvel;
 
         particle.xy = loop(particle.xy);
 
@@ -296,7 +296,7 @@ void main()
         vec4 trail = texel(trails, position);
 
         // Diffusion
-        trail += dt * Laplace(trails, position);
+        trail += simulationSpeed * Laplace(trails, position);
 
         vec4 particle = texel(particles, position);
         UNSCALE_PARTICLE(particle);
@@ -304,10 +304,10 @@ void main()
         float distr = gauss(position - particle.xy, prad);
 
         // Pheromone depositing
-        trail += dt * distr;
+        trail += simulationSpeed * distr;
 
         // Pheromone decay
-        trail -= dt * decay * trail;
+        trail -= simulationSpeed * decay * trail;
 
         if (FRAMEINDEX < 1 || restart) {
             trail = vec4(0);
