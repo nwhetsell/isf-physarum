@@ -206,10 +206,9 @@ vec4 Laplace(sampler2D ch, vec2 p)
 // Voronoi particle tracking
 // Simulating the cells
 
-// Loop the space
-vec2 loop(vec2 pos)
+vec2 wrapToRenderSize(vec2 position)
 {
-	return mod(pos, RENDERSIZE);
+	return mod(position, RENDERSIZE);
 }
 
 void main()
@@ -238,19 +237,19 @@ void main()
             positionOffsets[2] = vec2(0, -radius);
             positionOffsets[3] = vec2(0, radius);
             for (int i = 0; i < positionOffsetCount; i++) {
-                vec4 neighborParticle = texel(particles, loop(position + positionOffsets[i]));
+                vec4 neighborParticle = texel(particles, wrapToRenderSize(position + positionOffsets[i]));
                 UNSCALE_PARTICLE(neighborParticle);
 
                 // Check if the stored neighbouring particle is closer to this position.
-                float neighborDistance = length(loop(neighborParticle.xy - position + halfSize) - halfSize);
-                float particleDistance = length(loop(particle.xy - position + halfSize) - halfSize);
+                float neighborDistance = length(wrapToRenderSize(neighborParticle.xy - position + halfSize) - halfSize);
+                float particleDistance = length(wrapToRenderSize(particle.xy - position + halfSize) - halfSize);
                 if (neighborDistance < particleDistance) {
                     particle = neighborParticle;
                 }
             }
         }
 
-        particle.xy = loop(particle.xy);
+        particle.xy = wrapToRenderSize(particle.xy);
 
         // Cell cloning
         if (length(particle.xy - position) > particleCloneDistance) {
@@ -272,7 +271,7 @@ void main()
         // Update the particle
         particle.xy += simulationSpeed * pvel;
 
-        particle.xy = loop(particle.xy);
+        particle.xy = wrapToRenderSize(particle.xy);
 
         if (FRAMEINDEX < 1 || restart) {
 #ifndef VIDEOSYNC
