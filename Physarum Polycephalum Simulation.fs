@@ -20,7 +20,7 @@
         },
         {
             "NAME": "prad",
-            "LABEL": "trails size",
+            "LABEL": "Trail size",
             "TYPE": "float",
             "DEFAULT": 1.4,
             "MAX": 10,
@@ -28,7 +28,7 @@
         },
         {
             "NAME": "decay",
-            "LABEL": "trails decay",
+            "LABEL": "Trail decay",
             "TYPE": "float",
             "DEFAULT": 0.15,
             "MAX": 10,
