@@ -43,11 +43,27 @@
             "MIN": 0
         },
         {
+            "NAME": "agentSpeedRandomness",
+            "LABEL": "Agent speed randomness",
+            "TYPE": "float",
+            "DEFAULT": 0.1,
+            "MAX": 10,
+            "MIN": 0
+        },
+        {
             "NAME": "agentCloneFactor",
             "LABEL": "Agent clone factor",
             "TYPE": "float",
             "DEFAULT": 1,
             "MAX": 10,
+            "MIN": 0
+        },
+        {
+            "NAME": "agentCloneDistance",
+            "LABEL": "Agent clone distance",
+            "TYPE": "float",
+            "DEFAULT": 10,
+            "MAX": 100,
             "MIN": 0
         },
         {
@@ -81,6 +97,14 @@
             "DEFAULT": 3,
             "MAX": 10,
             "MIN": 1
+        },
+        {
+            "NAME": "blurProportion",
+            "LABEL": "Blur proportion",
+            "TYPE": "float",
+            "DEFAULT": 0.9,
+            "MAX": 1,
+            "MIN": 0
         }
     ],
     "ISFVSN": "2",
@@ -235,7 +259,7 @@ void main()
         particle.xy = loop(particle.xy);
 
         // Cell cloning
-        if (length(particle.xy - position) > 10.) {
+        if (length(particle.xy - position) > agentCloneDistance) {
         	particle.xy += agentCloneFactor * (hash22(position) - 0.5);
         }
 
@@ -249,7 +273,7 @@ void main()
 #endif
         particle.z += dt * sst * tanh(angleDifferenceFactor * dangl);
 
-        vec2 pvel = pspeed * vec2(cos(particle.z), sin(particle.z)) + 0.1 * (hash22(particle.xy + TIME) - 0.5);
+        vec2 pvel = pspeed * vec2(cos(particle.z), sin(particle.z)) + agentSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
         particle.xy += dt * pvel;
@@ -293,7 +317,7 @@ void main()
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
-        gl_FragColor = 0.9 * texel(diffuseTrails, position) + 0.1 * texel(trails, position);
+        gl_FragColor = blurProportion * texel(diffuseTrails, position) + (1. - blurProportion) * texel(trails, position);
         if (FRAMEINDEX < 1 || restart) {
             gl_FragColor = vec4(0);
         }
