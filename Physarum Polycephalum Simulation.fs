@@ -108,10 +108,6 @@
 #define iResolution RENDERSIZE
 #define iTime TIME
 
-#define iChannel0 bufferA
-#define iChannel1 bufferB
-#define iChannel2 bufferC
-
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This seems to be impossible in an ISF shader; ISF shaders
 // clamp image pixels to be between 0 and 1. Consequently, we must scale
@@ -127,10 +123,6 @@
 #define pixel(a, p) IMG_PIXEL(a, p)
 //#define texel(a, p) texelFetch(a, ivec2(p-0.5), 0)
 #define texel(a, p) IMG_PIXEL(a, p)
-#define ch0 iChannel0
-#define ch1 iChannel1
-#define ch2 iChannel2
-#define ch3 iChannel3
 
 //
 // ShaderToy Common
@@ -207,7 +199,7 @@ vec2 loop(vec2 pos)
 
 void Check(inout vec4 U, vec2 pos, vec2 dx)
 {
-    vec4 Unb = texel(ch0, loop(pos+dx));
+    vec4 Unb = texel(bufferA, loop(pos+dx));
 
     UNSCALE_PARTICLE(Unb)
 
@@ -237,7 +229,7 @@ void main()
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
         //this pixel value
-        U = texel(ch0, pos);
+        U = texel(bufferA, pos);
 
         UNSCALE_PARTICLE(U)
 
@@ -258,7 +250,7 @@ void main()
         vec2 sleft = U.xy + sdist*vec2(cos(U.z+sangl), sin(U.z+sangl));
         vec2 sright = U.xy + sdist*vec2(cos(U.z-sangl), sin(U.z-sangl));
 
-        float dangl = (pixel(ch1, sleft).x - pixel(ch1, sright).x);
+        float dangl = (pixel(bufferB, sleft).x - pixel(bufferB, sright).x);
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
@@ -285,12 +277,12 @@ void main()
     }
     else if (PASSINDEX == 1) // ShaderToy Buffer B
     {
-        Q = texel(ch1, p);
+        Q = texel(bufferB, p);
 
         //diffusion equation
-        Q += dt*Laplace(ch1, p);
+        Q += dt*Laplace(bufferB, p);
 
-        vec4 particle = texel(ch0, p);
+        vec4 particle = texel(bufferA, p);
 
         UNSCALE_PARTICLE(particle)
 
