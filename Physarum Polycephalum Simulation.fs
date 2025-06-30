@@ -206,13 +206,6 @@ vec4 Laplace(sampler2D ch, vec2 p)
 // Voronoi particle tracking
 // Simulating the cells
 
-// Loop the vector
-vec2 loop_d(vec2 pos)
-{
-    vec2 halfSize = 0.5 * RENDERSIZE;
-	return mod(pos + halfSize, RENDERSIZE) - halfSize;
-}
-
 // Loop the space
 vec2 loop(vec2 pos)
 {
@@ -225,6 +218,8 @@ void main()
 
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
+        vec2 halfSize = 0.5 * RENDERSIZE;
+
         // This pixel value
         vec4 particle = texel(particles, position);
         UNSCALE_PARTICLE(particle);
@@ -244,10 +239,12 @@ void main()
             positionOffsets[3] = vec2(0, radius);
             for (int i = 0; i < positionOffsetCount; i++) {
                 vec4 neighborParticle = texel(particles, loop(position + positionOffsets[i]));
-                UNSCALE_PARTICLE(neighborParticle)
+                UNSCALE_PARTICLE(neighborParticle);
 
                 // Check if the stored neighbouring particle is closer to this position.
-                if (length(loop_d(neighborParticle.xy - position)) < length(loop_d(particle.xy - position))) {
+                float neighborDistance = length(loop(neighborParticle.xy - position + halfSize) - halfSize);
+                float particleDistance = length(loop(particle.xy - position + halfSize) - halfSize);
+                if (neighborDistance < particleDistance) {
                     particle = neighborParticle;
                 }
             }
