@@ -125,8 +125,7 @@
 // ShaderToy Common
 //
 
-//hash functions
-//https://www.shadertoy.com/view/4djSRW
+// Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
 {
     p = fract(p * .1031);
@@ -137,7 +136,7 @@ float hash11(float p)
 
 float hash12(vec2 p)
 {
-	vec3 p3  = fract(vec3(p.xyx) * .1031);
+	vec3 p3 = fract(vec3(p.xyx) * .1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
 }
@@ -147,26 +146,24 @@ vec2 hash21(float p)
 {
 	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
 	p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
-
+    return fract((p3.xx + p3.yz) * p3.zy);
 }
 
 vec2 hash22(vec2 p)
 {
 	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
-
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
 }
 
 
-//functions
+// Functions
 float gauss(vec2 x, float r)
 {
     return exp(-pow(length(x)/r,2.));
 }
 
-//Laplacian operator
+// Laplacian operator
 vec4 Laplace(sampler2D ch, vec2 p)
 {
     vec3 dx = vec3(-1,0.,1);
@@ -178,42 +175,40 @@ vec4 Laplace(sampler2D ch, vec2 p)
 // ShaderToy Buffer A
 //
 
-//voronoi particle tracking
-//simulating the cells
+// Voronoi particle tracking
+// Simulating the cells
 
-//loop the vector
+// Loop the vector
 vec2 loop_d(vec2 pos)
 {
     vec2 halfSize = 0.5 * RENDERSIZE;
 	return mod(pos + halfSize, RENDERSIZE) - halfSize;
 }
 
-//loop the space
+// Loop the space
 vec2 loop(vec2 pos)
 {
 	return mod(pos, RENDERSIZE);
 }
 
-
 void Check(inout vec4 U, vec2 pos, vec2 dx)
 {
-    vec4 Unb = texel(bufferA, loop(pos+dx));
+    vec4 U_neighbor = texel(bufferA, loop(pos+dx));
 
-    UNSCALE_PARTICLE(Unb)
+    UNSCALE_PARTICLE(U_neighbor)
 
-    //check if the stored neighbouring particle is closer to this position
-    if(length(loop_d(Unb.xy - pos)) < length(loop_d(U.xy - pos)))
-    {
-        U = Unb; //copy the particle info
+    // Check if the stored neighbouring particle is closer to this position.
+    if (length(loop_d(U_neighbor.xy - pos)) < length(loop_d(U.xy - pos))) {
+        U = U_neighbor; // Copy the particle info
     }
 }
 
 void CheckRadius(inout vec4 U, vec2 pos, float r)
 {
-    Check(U, pos, vec2(-r,0));
-    Check(U, pos, vec2(r,0));
-    Check(U, pos, vec2(0,-r));
-    Check(U, pos, vec2(0,r));
+    Check(U, pos, vec2(-r,  0));
+    Check(U, pos, vec2( r,  0));
+    Check(U, pos, vec2( 0, -r));
+    Check(U, pos, vec2( 0,  r));
 }
 
 #define U gl_FragColor
@@ -226,12 +221,12 @@ void main()
 
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
-        //this pixel value
+        // This pixel value
         U = texel(bufferA, pos);
 
-        UNSCALE_PARTICLE(U)
+        UNSCALE_PARTICLE(U);
 
-        //check neighbours
+        // Check neighbours
         CheckRadius(U, pos, 1.);
         CheckRadius(U, pos, 2.);
         CheckRadius(U, pos, 3.);
@@ -240,34 +235,33 @@ void main()
 
         U.xy = loop(U.xy);
 
-        //cell cloning
-        if(length(U.xy - pos) > 10.)
-        	U.xy += agentCloneFactor*(hash22(pos)-0.5);
+        // Cell cloning
+        if (length(U.xy - pos) > 10.) {
+        	U.xy += agentCloneFactor * (hash22(pos) - 0.5);
+        }
 
-        //sensors
-        vec2 sleft = U.xy + sdist*vec2(cos(U.z+sangl), sin(U.z+sangl));
-        vec2 sright = U.xy + sdist*vec2(cos(U.z-sangl), sin(U.z-sangl));
+        // Sensors
+        vec2 sleft = U.xy + sdist * vec2(cos(U.z + sangl), sin(U.z + sangl));
+        vec2 sright = U.xy + sdist * vec2(cos(U.z - sangl), sin(U.z - sangl));
 
-        float dangl = (pixel(bufferB, sleft).x - pixel(bufferB, sright).x);
+        float dangl = pixel(bufferB, sleft).x - pixel(bufferB, sright).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
-        U.z += dt*sst*tanh(angleDifferenceFactor*dangl);
+        U.z += dt * sst * tanh(angleDifferenceFactor * dangl);
 
-        vec2 pvel = pspeed*vec2(cos(U.z), sin(U.z)) + 0.1*(hash22(U.xy+TIME)-0.5);;
+        vec2 pvel = pspeed * vec2(cos(U.z), sin(U.z)) + 0.1 * (hash22(U.xy + TIME) - 0.5);
 
-        //update the particle
-        U.xy += dt*pvel;
+        // Update the particle
+        U.xy += dt * pvel;
 
         U.xy = loop(U.xy);
 
-
-        if(FRAMEINDEX < 1 || restart)
-        {
+        if (FRAMEINDEX < 1 || restart) {
 #ifndef VIDEOSYNC
 #define round floor
 #endif
-            U.xy = vec2(pdens*round(pos.x/pdens),pdens*round(pos.y/pdens));
+            U.xy = vec2(pdens * round(pos.x / pdens), pdens * round(pos.y / pdens));
             U.zw = hash22(U.xy) - 0.5;
         }
 
@@ -277,8 +271,8 @@ void main()
     {
         Q = texel(bufferB, p);
 
-        //diffusion equation
-        Q += dt*Laplace(bufferB, p);
+        // Diffusion
+        Q += dt * Laplace(bufferB, p);
 
         vec4 particle = texel(bufferA, p);
 
@@ -286,20 +280,24 @@ void main()
 
         float distr = gauss(p - particle.xy, prad);
 
-        //pheromone depositing
-        Q += dt*distr;
+        // Pheromone depositing
+        Q += dt * distr;
 
-        //pheromone decay
-        Q += -dt*decay*Q;
+        // Pheromone decay
+        Q -= dt * decay * Q;
 
-        if(FRAMEINDEX < 1 || restart) Q = vec4(0);
+        if (FRAMEINDEX < 1 || restart) {
+            Q = vec4(0);
+        }
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
         Q = texel(bufferC, p);
+        Q = 0.9 * Q + 0.1 * texel(bufferB, p);
 
-        Q = 0.9*Q + 0.1*texel(bufferB, p);
-        if(FRAMEINDEX < 1 || restart) Q =vec4(0);
+        if (FRAMEINDEX < 1 || restart) {
+            Q = vec4(0);
+        }
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
