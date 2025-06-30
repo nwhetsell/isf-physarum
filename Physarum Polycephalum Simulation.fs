@@ -219,19 +219,6 @@ vec2 loop(vec2 pos)
 	return mod(pos, RENDERSIZE);
 }
 
-vec4 Check(vec4 particle, vec2 position, vec2 positionOffset)
-{
-    vec4 neighborParticle = texel(particles, loop(position + positionOffset));
-
-    UNSCALE_PARTICLE(neighborParticle)
-
-    // Check if the stored neighbouring particle is closer to this position.
-    if (length(loop_d(neighborParticle.xy - position)) < length(loop_d(particle.xy - position))) {
-        return neighborParticle;
-    }
-    return particle;
-}
-
 void main()
 {
     vec2 position = gl_FragCoord.xy;
@@ -244,10 +231,26 @@ void main()
 
         // Check neighbours
         for (float radius = 1.; radius <= 5.; radius += 1.) {
-            particle = Check(particle, position, vec2(-radius,  0));
-            particle = Check(particle, position, vec2( radius,  0));
-            particle = Check(particle, position, vec2( 0, -radius));
-            particle = Check(particle, position, vec2( 0,  radius));
+            // This would be *much* easier to do with an array initializer:
+            //    vec2 positionOffsets[] = vec2[](vec2(-radius, 0), vec2(radius, 0), vec2(0, -radius), vec2(0, radius));
+            // and the array length member function:
+            //    https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Arrays
+            //    https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Array_constructors
+            const int positionOffsetCount = 4;
+            vec2 positionOffsets[positionOffsetCount];
+            positionOffsets[0] = vec2(-radius, 0);
+            positionOffsets[1] = vec2(radius, 0);
+            positionOffsets[2] = vec2(0, -radius);
+            positionOffsets[3] = vec2(0, radius);
+            for (int i = 0; i < positionOffsetCount; i++) {
+                vec4 neighborParticle = texel(particles, loop(position + positionOffsets[i]));
+                UNSCALE_PARTICLE(neighborParticle)
+
+                // Check if the stored neighbouring particle is closer to this position.
+                if (length(loop_d(neighborParticle.xy - position)) < length(loop_d(particle.xy - position))) {
+                    particle = neighborParticle;
+                }
+            }
         }
 
         particle.xy = loop(particle.xy);
