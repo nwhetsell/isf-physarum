@@ -219,7 +219,7 @@ vec2 loop(vec2 pos)
 	return mod(pos, RENDERSIZE);
 }
 
-void Check(inout vec4 particle, vec2 position, vec2 dx)
+vec4 Check(vec4 particle, vec2 position, vec2 dx)
 {
     vec4 neighborParticle = texel(particles, loop(position + dx));
 
@@ -227,16 +227,9 @@ void Check(inout vec4 particle, vec2 position, vec2 dx)
 
     // Check if the stored neighbouring particle is closer to this position.
     if (length(loop_d(neighborParticle.xy - position)) < length(loop_d(particle.xy - position))) {
-        particle = neighborParticle; // Copy the particle info
+        return neighborParticle;
     }
-}
-
-void CheckRadius(inout vec4 particle, vec2 position, float r)
-{
-    Check(particle, position, vec2(-r,  0));
-    Check(particle, position, vec2( r,  0));
-    Check(particle, position, vec2( 0, -r));
-    Check(particle, position, vec2( 0,  r));
+    return particle;
 }
 
 void main()
@@ -250,11 +243,12 @@ void main()
         UNSCALE_PARTICLE(particle);
 
         // Check neighbours
-        CheckRadius(particle, position, 1.);
-        CheckRadius(particle, position, 2.);
-        CheckRadius(particle, position, 3.);
-        CheckRadius(particle, position, 4.);
-        CheckRadius(particle, position, 5.);
+        for (float radius = 1.; radius <= 5.; radius += 1.) {
+            particle = Check(particle, position, vec2(-radius,  0));
+            particle = Check(particle, position, vec2( radius,  0));
+            particle = Check(particle, position, vec2( 0, -radius));
+            particle = Check(particle, position, vec2( 0,  radius));
+        }
 
         particle.xy = loop(particle.xy);
 
