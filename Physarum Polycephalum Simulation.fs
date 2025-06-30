@@ -43,6 +43,14 @@
             "MIN": 0
         },
         {
+            "NAME": "agentCloneFactor",
+            "LABEL": "Agent clone factor",
+            "TYPE": "float",
+            "DEFAULT": 1,
+            "MAX": 10,
+            "MIN": 0
+        },
+        {
             "NAME": "sdist",
             "LABEL": "Sensor distance",
             "TYPE": "float",
@@ -65,6 +73,14 @@
             "DEFAULT": 0.3,
             "MAX": 6,
             "MIN": 0
+        },
+        {
+            "NAME": "angleDifferenceFactor",
+            "LABEL": "Sensor angle diff. factor",
+            "TYPE": "float",
+            "DEFAULT": 3,
+            "MAX": 10,
+            "MIN": 1
         }
     ],
     "ISFVSN": "2",
@@ -236,7 +252,7 @@ void main()
 
         //cell cloning
         if(length(U.xy - pos) > 10.)
-        	U.xy += 1.*(hash22(pos)-0.5);
+        	U.xy += agentCloneFactor*(hash22(pos)-0.5);
 
         //sensors
         vec2 sleft = U.xy + sdist*vec2(cos(U.z+sangl), sin(U.z+sangl));
@@ -246,7 +262,7 @@ void main()
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
-        U.z += dt*sst*tanh(3.*dangl);
+        U.z += dt*sst*tanh(angleDifferenceFactor*dangl);
 
         vec2 pvel = pspeed*vec2(cos(U.z), sin(U.z)) + 0.1*(hash22(U.xy+iTime)-0.5);;
 
