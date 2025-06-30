@@ -19,7 +19,7 @@
             "MIN": 0
         },
         {
-            "NAME": "prad",
+            "NAME": "trailSize",
             "LABEL": "Trail size",
             "TYPE": "float",
             "DEFAULT": 1.4,
@@ -301,7 +301,7 @@ void main()
         vec4 particle = texel(particles, position);
         UNSCALE_PARTICLE(particle);
 
-        float distr = gauss(position - particle.xy, prad);
+        float distr = gauss(position - particle.xy, trailSize);
 
         // Pheromone depositing
         trail += simulationSpeed * distr;
