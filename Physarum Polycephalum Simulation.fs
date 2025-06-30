@@ -59,8 +59,8 @@
             "MIN": 0
         },
         {
-            "NAME": "agentCloneDistance",
-            "LABEL": "Agent clone distance",
+            "NAME": "particleCloneDistance",
+            "LABEL": "Particle clone distance",
             "TYPE": "float",
             "DEFAULT": 10,
             "MAX": 100,
@@ -259,7 +259,7 @@ void main()
         particle.xy = loop(particle.xy);
 
         // Cell cloning
-        if (length(particle.xy - position) > agentCloneDistance) {
+        if (length(particle.xy - position) > particleCloneDistance) {
         	particle.xy += particleCloneFactor * (hash22(position) - 0.5);
         }
 
