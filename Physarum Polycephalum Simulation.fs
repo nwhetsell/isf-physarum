@@ -33,6 +33,38 @@
             "DEFAULT": 0.15,
             "MAX": 10,
             "MIN": 0
+        },
+        {
+            "NAME": "pspeed",
+            "LABEL": "Agent speed",
+            "TYPE": "float",
+            "DEFAULT": 6,
+            "MAX": 100,
+            "MIN": 0
+        },
+        {
+            "NAME": "sdist",
+            "LABEL": "Sensor distance",
+            "TYPE": "float",
+            "DEFAULT": 10,
+            "MAX": 100,
+            "MIN": 0
+        },
+        {
+            "NAME": "sst",
+            "LABEL": "Sensor strength",
+            "TYPE": "float",
+            "DEFAULT": 10,
+            "MAX": 100,
+            "MIN": 0
+        },
+        {
+            "NAME": "sangl",
+            "LABEL": "Sensor angle (radians)",
+            "TYPE": "float",
+            "DEFAULT": 0.3,
+            "MAX": 6,
+            "MIN": 0
         }
     ],
     "ISFVSN": "2",
@@ -71,18 +103,6 @@
 // unscale particle data when reading from an image.
 #define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= size; PARTICLE.zw += 0.5;
 #define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= size; PARTICLE.zw -= 0.5;
-
-//cell speed
-float pspeed = 6.;
-
-//sensor distance
-float sdist = 10.;
-
-//sensor strenght
-float sst = 10.;
-
-//sensor angle
-float sangl = 0.3; //radians
 
 #define pdens 2.
 //definitions
