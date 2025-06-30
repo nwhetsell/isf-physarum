@@ -20,7 +20,7 @@
         },
         {
             "NAME": "prad",
-            "LABEL": "Trail size",
+            "LABEL": "trails size",
             "TYPE": "float",
             "DEFAULT": 1.4,
             "MAX": 10,
@@ -28,7 +28,7 @@
         },
         {
             "NAME": "decay",
-            "LABEL": "Trail decay",
+            "LABEL": "trails decay",
             "TYPE": "float",
             "DEFAULT": 0.15,
             "MAX": 10,
@@ -86,15 +86,15 @@
     "ISFVSN": "2",
     "PASSES": [
         {
-            "TARGET": "agents",
+            "TARGET": "particles",
             "PERSISTENT": true
         },
         {
-            "TARGET": "trail",
+            "TARGET": "trails",
             "PERSISTENT": true
         },
         {
-            "TARGET": "diffuseTrail",
+            "TARGET": "diffuseTrails",
             "PERSISTENT": true
         },
         {
@@ -160,14 +160,18 @@ vec2 hash22(vec2 p)
 // Functions
 float gauss(vec2 x, float r)
 {
-    return exp(-pow(length(x)/r,2.));
+    return exp(-pow(length(x) / r, 2.));
 }
 
 // Laplacian operator
 vec4 Laplace(sampler2D ch, vec2 p)
 {
-    vec3 dx = vec3(-1,0.,1);
-    return texel(ch, p+dx.xy)+texel(ch, p+dx.yx)+texel(ch, p+dx.zy)+texel(ch, p+dx.yz)-4.*texel(ch, p);
+    vec3 dx = vec3(-1, 0., 1);
+    return texel(ch, p + dx.xy) +
+           texel(ch, p + dx.yx) +
+           texel(ch, p + dx.zy) +
+           texel(ch, p + dx.yz) -
+           4. * texel(ch, p);
 }
 
 
@@ -191,117 +195,112 @@ vec2 loop(vec2 pos)
 	return mod(pos, RENDERSIZE);
 }
 
-void Check(inout vec4 U, vec2 pos, vec2 dx)
+void Check(inout vec4 particle, vec2 position, vec2 dx)
 {
-    vec4 U_neighbor = texel(agents, loop(pos+dx));
+    vec4 neighborParticle = texel(particles, loop(position + dx));
 
-    UNSCALE_PARTICLE(U_neighbor)
+    UNSCALE_PARTICLE(neighborParticle)
 
     // Check if the stored neighbouring particle is closer to this position.
-    if (length(loop_d(U_neighbor.xy - pos)) < length(loop_d(U.xy - pos))) {
-        U = U_neighbor; // Copy the particle info
+    if (length(loop_d(neighborParticle.xy - position)) < length(loop_d(particle.xy - position))) {
+        particle = neighborParticle; // Copy the particle info
     }
 }
 
-void CheckRadius(inout vec4 U, vec2 pos, float r)
+void CheckRadius(inout vec4 particle, vec2 position, float r)
 {
-    Check(U, pos, vec2(-r,  0));
-    Check(U, pos, vec2( r,  0));
-    Check(U, pos, vec2( 0, -r));
-    Check(U, pos, vec2( 0,  r));
+    Check(particle, position, vec2(-r,  0));
+    Check(particle, position, vec2( r,  0));
+    Check(particle, position, vec2( 0, -r));
+    Check(particle, position, vec2( 0,  r));
 }
-
-#define U gl_FragColor
-#define Q gl_FragColor
-#define p pos
 
 void main()
 {
-    vec2 pos = gl_FragCoord.xy;
+    vec2 position = gl_FragCoord.xy;
 
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
         // This pixel value
-        U = texel(agents, pos);
-
-        UNSCALE_PARTICLE(U);
+        vec4 particle = texel(particles, position);
+        UNSCALE_PARTICLE(particle);
 
         // Check neighbours
-        CheckRadius(U, pos, 1.);
-        CheckRadius(U, pos, 2.);
-        CheckRadius(U, pos, 3.);
-        CheckRadius(U, pos, 4.);
-        CheckRadius(U, pos, 5.);
+        CheckRadius(particle, position, 1.);
+        CheckRadius(particle, position, 2.);
+        CheckRadius(particle, position, 3.);
+        CheckRadius(particle, position, 4.);
+        CheckRadius(particle, position, 5.);
 
-        U.xy = loop(U.xy);
+        particle.xy = loop(particle.xy);
 
         // Cell cloning
-        if (length(U.xy - pos) > 10.) {
-        	U.xy += agentCloneFactor * (hash22(pos) - 0.5);
+        if (length(particle.xy - position) > 10.) {
+        	particle.xy += agentCloneFactor * (hash22(position) - 0.5);
         }
 
         // Sensors
-        vec2 sleft = U.xy + sdist * vec2(cos(U.z + sangl), sin(U.z + sangl));
-        vec2 sright = U.xy + sdist * vec2(cos(U.z - sangl), sin(U.z - sangl));
+        vec2 sleft = particle.xy + sdist * vec2(cos(particle.z + sangl), sin(particle.z + sangl));
+        vec2 sright = particle.xy + sdist * vec2(cos(particle.z - sangl), sin(particle.z - sangl));
 
-        float dangl = pixel(trail, sleft).x - pixel(trail, sright).x;
+        float dangl = pixel(trails, sleft).x - pixel(trails, sright).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
 #endif
-        U.z += dt * sst * tanh(angleDifferenceFactor * dangl);
+        particle.z += dt * sst * tanh(angleDifferenceFactor * dangl);
 
-        vec2 pvel = pspeed * vec2(cos(U.z), sin(U.z)) + 0.1 * (hash22(U.xy + TIME) - 0.5);
+        vec2 pvel = pspeed * vec2(cos(particle.z), sin(particle.z)) + 0.1 * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
-        U.xy += dt * pvel;
+        particle.xy += dt * pvel;
 
-        U.xy = loop(U.xy);
+        particle.xy = loop(particle.xy);
 
         if (FRAMEINDEX < 1 || restart) {
 #ifndef VIDEOSYNC
 #define round floor
 #endif
-            U.xy = vec2(pdens * round(pos.x / pdens), pdens * round(pos.y / pdens));
-            U.zw = hash22(U.xy) - 0.5;
+            particle.xy = vec2(pdens * round(position.x / pdens), pdens * round(position.y / pdens));
+            particle.zw = hash22(particle.xy) - 0.5;
         }
 
-        SCALE_PARTICLE(U)
+        SCALE_PARTICLE(particle);
+        gl_FragColor = particle;
     }
     else if (PASSINDEX == 1) // ShaderToy Buffer B
     {
-        Q = texel(trail, p);
+        vec4 trail = texel(trails, position);
 
         // Diffusion
-        Q += dt * Laplace(trail, p);
+        trail += dt * Laplace(trails, position);
 
-        vec4 particle = texel(agents, p);
+        vec4 particle = texel(particles, position);
+        UNSCALE_PARTICLE(particle);
 
-        UNSCALE_PARTICLE(particle)
-
-        float distr = gauss(p - particle.xy, prad);
+        float distr = gauss(position - particle.xy, prad);
 
         // Pheromone depositing
-        Q += dt * distr;
+        trail += dt * distr;
 
         // Pheromone decay
-        Q -= dt * decay * Q;
+        trail -= dt * decay * trail;
 
         if (FRAMEINDEX < 1 || restart) {
-            Q = vec4(0);
+            trail = vec4(0);
         }
+
+        gl_FragColor = trail;
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
-        Q = texel(diffuseTrail, p);
-        Q = 0.9 * Q + 0.1 * texel(trail, p);
-
+        gl_FragColor = 0.9 * texel(diffuseTrails, position) + 0.1 * texel(trails, position);
         if (FRAMEINDEX < 1 || restart) {
-            Q = vec4(0);
+            gl_FragColor = vec4(0);
         }
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
-        vec4 pheromone = 2.5 * texel(diffuseTrail, pos);
-        gl_FragColor = vec4(sin(pheromone.xyz * vec3(1, 1.2, 1.5)), 1.);
+        vec4 diffuseTrail = 2.5 * texel(diffuseTrails, position);
+        gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1, 1.2, 1.5)), 1.);
     }
 }
