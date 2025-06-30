@@ -104,24 +104,21 @@
 }
 */
 
-#define iFrame FRAMEINDEX
-#define iResolution RENDERSIZE
-#define iTime TIME
-
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This seems to be impossible in an ISF shader; ISF shaders
 // clamp image pixels to be between 0 and 1. Consequently, we must scale
 // particle data to be between 0 and 1 when writing them to an image, and
 // unscale particle data when reading from an image.
-#define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= size; PARTICLE.zw += 0.5;
-#define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= size; PARTICLE.zw -= 0.5;
+#define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= RENDERSIZE; PARTICLE.zw += 0.5;
+#define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= RENDERSIZE; PARTICLE.zw -= 0.5;
 
+// This should be an input variable, but the shader doesn’t initialize correctly
+// unless this is a #define.
 #define pdens 2.
-//definitions
-#define size iResolution.xy
-//#define pixel(a, p) texture(a, p/vec2(textureSize(a,0)))
+
+// These probably shouldn’t be the same, but ISF shaders don’t seem to have any
+// other options.
 #define pixel(a, p) IMG_PIXEL(a, p)
-//#define texel(a, p) texelFetch(a, ivec2(p-0.5), 0)
 #define texel(a, p) IMG_PIXEL(a, p)
 
 //
@@ -187,13 +184,14 @@ vec4 Laplace(sampler2D ch, vec2 p)
 //loop the vector
 vec2 loop_d(vec2 pos)
 {
-	return mod(pos + size*0.5, size) - size*0.5;
+    vec2 halfSize = 0.5 * RENDERSIZE;
+	return mod(pos + halfSize, RENDERSIZE) - halfSize;
 }
 
 //loop the space
 vec2 loop(vec2 pos)
 {
-	return mod(pos, size);
+	return mod(pos, RENDERSIZE);
 }
 
 
@@ -256,7 +254,7 @@ void main()
 #endif
         U.z += dt*sst*tanh(angleDifferenceFactor*dangl);
 
-        vec2 pvel = pspeed*vec2(cos(U.z), sin(U.z)) + 0.1*(hash22(U.xy+iTime)-0.5);;
+        vec2 pvel = pspeed*vec2(cos(U.z), sin(U.z)) + 0.1*(hash22(U.xy+TIME)-0.5);;
 
         //update the particle
         U.xy += dt*pvel;
@@ -264,7 +262,7 @@ void main()
         U.xy = loop(U.xy);
 
 
-        if(iFrame < 1 || restart)
+        if(FRAMEINDEX < 1 || restart)
         {
 #ifndef VIDEOSYNC
 #define round floor
@@ -294,14 +292,14 @@ void main()
         //pheromone decay
         Q += -dt*decay*Q;
 
-        if(iFrame < 1 || restart) Q = vec4(0);
+        if(FRAMEINDEX < 1 || restart) Q = vec4(0);
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
         Q = texel(bufferC, p);
 
         Q = 0.9*Q + 0.1*texel(bufferB, p);
-        if(iFrame < 1 || restart) Q =vec4(0);
+        if(FRAMEINDEX < 1 || restart) Q =vec4(0);
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
