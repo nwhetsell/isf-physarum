@@ -76,7 +76,6 @@ float sangl = 0.3; //radians
 #define ch1 iChannel1
 #define ch2 iChannel2
 #define ch3 iChannel3
-#define PI 3.14159265
 
 //
 // ShaderToy Common
@@ -121,32 +120,6 @@ vec2 hash22(vec2 p)
 float gauss(vec2 x, float r)
 {
     return exp(-pow(length(x)/r,2.));
-}
-
-
-//a rainbow colormap from Matlab
-float interpolate(float val, float y0, float x0, float y1, float x1)
-{
-    return (val-x0)*(y1-y0)/(x1-x0) + y0;
-}
-
-float base(float val)
-{
-    if ( val <= -0.75 ) return 0.0;
-    else if ( val <= -0.25 ) return interpolate( val, 0.0, -0.75, 1.0, -0.25 );
-    else if ( val <= 0.25 ) return 1.0;
-    else if ( val <= 0.75 ) return interpolate( val, 1.0, 0.25, 0.0, 0.75 );
-    else return 0.0;
-}
-
-vec3 jet_colormap(float v)
-{
-    return vec3(base(v - 0.5),base(v),base(v + 0.5));
-}
-
-vec3 jet_range(float v, float a, float b)
-{
-    return jet_colormap(2.*clamp((v-a)/(b-a),0.,1.) - 1.);
 }
 
 //Laplacian operator
