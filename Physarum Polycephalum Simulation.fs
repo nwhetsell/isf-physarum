@@ -168,13 +168,6 @@ vec4 Laplace(sampler2D ch, vec2 p)
     return texel(ch, p+dx.xy)+texel(ch, p+dx.yx)+texel(ch, p+dx.zy)+texel(ch, p+dx.yz)-4.*texel(ch, p);
 }
 
-//Gradient
-vec2 Grad(sampler2D ch, vec2 p)
-{
-    vec3 dx = vec3(-1,0.,1);
-    return vec2(length(texel(ch, p+dx.zy)),length(texel(ch, p+dx.yz))) - length(texel(ch, p));
-}
-
 
 //
 // ShaderToy Buffer A
