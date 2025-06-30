@@ -51,6 +51,14 @@
             "MIN": 0
         },
         {
+            "NAME": "particleMaxSearchRadius",
+            "LABEL": "Particle max. search radius",
+            "TYPE": "float",
+            "DEFAULT": 5,
+            "MAX": 10,
+            "MIN": 1
+        },
+        {
             "NAME": "particleCloneFactor",
             "LABEL": "Particle clone factor",
             "TYPE": "float",
@@ -224,7 +232,13 @@ void main()
         UNSCALE_PARTICLE(particle);
 
         // Check neighbours
-        for (float radius = 1.; radius <= 5.; radius += 1.) {
+        for (float radius = 1.;
+#ifdef VIDEOSYNC
+             radius <= particleMaxSearchRadius;
+#else
+             radius <= 5.;
+#endif
+             radius += 1.) {
             // This would be *much* easier to do with an array initializer:
             //    vec2 positionOffsets[] = vec2[](vec2(-radius, 0), vec2(radius, 0), vec2(0, -radius), vec2(0, radius));
             // and the array length member function:
