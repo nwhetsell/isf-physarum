@@ -238,6 +238,7 @@ void main()
              radius <= 5.;
 #endif
              radius += 1.) {
+
             // This would be *much* easier to do with an array initializer:
             //    vec2 positionOffsets[] = vec2[](vec2(-radius, 0), vec2(radius, 0), vec2(0, -radius), vec2(0, radius));
             // and the array length member function:
@@ -246,9 +247,10 @@ void main()
             const int positionOffsetCount = 4;
             vec2 positionOffsets[positionOffsetCount];
             positionOffsets[0] = vec2(-radius, 0);
-            positionOffsets[1] = vec2(radius, 0);
-            positionOffsets[2] = vec2(0, -radius);
-            positionOffsets[3] = vec2(0, radius);
+            positionOffsets[1] = vec2( radius, 0);
+            positionOffsets[2] = vec2( 0, -radius);
+            positionOffsets[3] = vec2( 0,  radius);
+
             for (int i = 0; i < positionOffsetCount; i++) {
                 vec4 neighbor = texel(particles, wrapToRenderSize(position + positionOffsets[i]));
                 UNSCALE_PARTICLE(neighbor);
