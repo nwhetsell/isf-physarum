@@ -11,6 +11,12 @@
             "TYPE": "event"
         },
         {
+            "NAME": "mouse",
+            "TYPE": "point2D",
+            "MIN": [0, 0],
+            "MAX": [1, 1]
+        },
+        {
             "NAME": "simulationSpeed",
             "LABEL": "Simulation speed",
             "TYPE": "float",
@@ -218,13 +224,19 @@ void main()
 
     if (PASSINDEX == 0) // ShaderToy Buffer A
     {
-        vec2 halfSize = 0.5 * RENDERSIZE;
+        float scaledSensorDistance = sensorDistance;
+        float scaledSensorStrength = sensorStrength;
+        if (length(mouse.xy) > 0.) {
+           	scaledSensorDistance *= mouse.x;
+      		scaledSensorStrength *= mouse.y;
+        }
 
         // This pixel value
         vec4 particle = texel(particles, position);
         UNSCALE_PARTICLE(particle);
 
         // Check neighbours
+        vec2 halfSize = 0.5 * RENDERSIZE;
         for (float radius = 1.;
 #ifdef VIDEOSYNC
              radius <= particleMaxSearchRadius;
