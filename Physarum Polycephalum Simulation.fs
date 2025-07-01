@@ -144,6 +144,10 @@
 #define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= RENDERSIZE; PARTICLE.zw += 0.5;
 #define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= RENDERSIZE; PARTICLE.zw -= 0.5;
 
+//
+// ShaderToy Common
+//
+
 // This should be an input variable, but the shader doesn’t initialize correctly
 // unless this is a #define.
 #define pdens 2.
@@ -152,10 +156,6 @@
 // other options.
 #define pixel(a, p) IMG_PIXEL(a, p)
 #define texel(a, p) IMG_PIXEL(a, p)
-
-//
-// ShaderToy Common
-//
 
 // Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
@@ -206,13 +206,7 @@ vec4 laplacian(sampler2D ch, vec2 p)
 }
 
 
-//
-// ShaderToy Buffer A
-//
-
-// Voronoi particle tracking
-// Simulating the cells
-
+// This is the `loop` function in Buffer A of the original ShaderToy shader.
 vec2 wrapToRenderSize(vec2 position)
 {
 	return mod(position, RENDERSIZE);
