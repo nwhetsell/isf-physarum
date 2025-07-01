@@ -277,7 +277,7 @@ void main()
 
         float dangl = pixel(trails, sleft).x - pixel(trails, sright).x;
 #ifndef VIDEOSYNC
-#define tanh(x) (2. / (1. + exp(-2. * x)) - 1.)
+#define tanh(x) (2. / (1. + exp(-2. * (x))) - 1.)
 #endif
         particle.z += simulationSpeed * sensorStrength * tanh(angleDifferenceFactor * dangl);
 
