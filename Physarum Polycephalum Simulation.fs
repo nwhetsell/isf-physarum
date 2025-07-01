@@ -173,7 +173,6 @@ float hash12(vec2 p)
     return fract((p3.x + p3.y) * p3.z);
 }
 
-
 vec2 hash21(float p)
 {
 	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
