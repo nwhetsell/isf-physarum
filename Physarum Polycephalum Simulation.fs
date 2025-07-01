@@ -28,7 +28,7 @@
         },
         {
             "NAME": "trailDecay",
-            "LABEL": "Trail trailDecay",
+            "LABEL": "Trail decay",
             "TYPE": "float",
             "DEFAULT": 0.15,
             "MAX": 10,
