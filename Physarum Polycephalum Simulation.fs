@@ -99,8 +99,8 @@
             "MIN": 0
         },
         {
-            "NAME": "angleDifferenceFactor",
-            "LABEL": "Sensor angle diff. factor",
+            "NAME": "sensedDirectionFactor",
+            "LABEL": "Sensed direction factor",
             "TYPE": "float",
             "DEFAULT": 3,
             "MAX": 10,
@@ -272,19 +272,19 @@ void main()
         }
 
         // Sensors
-        vec2 sleft = particle.xy + sensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
-        vec2 sright = particle.xy + sensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
+        vec2 sensorCounterclockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
+        vec2 sensorClockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
 
-        float dangl = pixel(trails, sleft).x - pixel(trails, sright).x;
+        float sensedDirection = pixel(trails, sensorCounterclockwisePosition).x - pixel(trails, sensorClockwisePosition).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * (x))) - 1.)
 #endif
-        particle.z += simulationSpeed * sensorStrength * tanh(angleDifferenceFactor * dangl);
+        particle.z += simulationSpeed * sensorStrength * tanh(sensedDirectionFactor * sensedDirection);
 
-        vec2 pvel = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
+        vec2 particleVelocity = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
-        particle.xy += simulationSpeed * pvel;
+        particle.xy += simulationSpeed * particleVelocity;
 
         particle.xy = wrapToRenderSize(particle.xy);
 
