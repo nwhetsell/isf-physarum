@@ -199,10 +199,11 @@ float gauss(vec2 x, float r)
 // Laplacian operator
 vec4 laplacian(sampler2D image, vec2 position)
 {
-    return IMG_PIXEL(image, vec2(position.x - 1, position.y)) +
-           IMG_PIXEL(image, vec2(position.x, position.y - 1)) +
-           IMG_PIXEL(image, vec2(position.x + 1, position.y)) +
-           IMG_PIXEL(image, vec2(position.x, position.y + 1)) -
+    vec3 dx = vec3(-1, 0, 1);
+    return IMG_PIXEL(image, position + dx.xy) +
+           IMG_PIXEL(image, position + dx.yx) +
+           IMG_PIXEL(image, position + dx.zy) +
+           IMG_PIXEL(image, position + dx.yz) -
            4. * IMG_PIXEL(image, position);
 }
 
