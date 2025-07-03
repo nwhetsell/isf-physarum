@@ -13,6 +13,7 @@
         {
             "NAME": "mouse",
             "TYPE": "point2D",
+            "DEFAULT": [1, 1],
             "MIN": [0, 0],
             "MAX": [1, 1]
         },
@@ -158,11 +159,6 @@
 // unless this is a #define.
 #define pdens 2.
 
-// These probably shouldn’t be the same, but ISF shaders don’t seem to have any
-// other options.
-#define pixel(a, p) IMG_PIXEL(a, p)
-#define texel(a, p) IMG_PIXEL(a, p)
-
 // Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
 {
@@ -201,14 +197,13 @@ float gauss(vec2 x, float r)
 }
 
 // Laplacian operator
-vec4 laplacian(sampler2D ch, vec2 p)
+vec4 laplacian(sampler2D image, vec2 position)
 {
-    vec3 dx = vec3(-1, 0., 1);
-    return texel(ch, p + dx.xy) +
-           texel(ch, p + dx.yx) +
-           texel(ch, p + dx.zy) +
-           texel(ch, p + dx.yz) -
-           4. * texel(ch, p);
+    return IMG_PIXEL(image, vec2(position.x - 1, position.y)) +
+           IMG_PIXEL(image, vec2(position.x, position.y - 1)) +
+           IMG_PIXEL(image, vec2(position.x + 1, position.y)) +
+           IMG_PIXEL(image, vec2(position.x, position.y + 1)) -
+           4. * IMG_PIXEL(image, position);
 }
 
 
@@ -232,7 +227,7 @@ void main()
         }
 
         // This pixel value
-        vec4 particle = texel(particles, position);
+        vec4 particle = IMG_PIXEL(particles, position);
         UNSCALE_PARTICLE(particle);
 
         // Check neighbours
@@ -252,13 +247,13 @@ void main()
             //    https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Array_constructors
             const int positionOffsetCount = 4;
             vec2 positionOffsets[positionOffsetCount];
-            positionOffsets[0] = vec2(-radius, 0);
-            positionOffsets[1] = vec2( radius, 0);
+            positionOffsets[0] = vec2(-radius,  0);
+            positionOffsets[1] = vec2( radius,  0);
             positionOffsets[2] = vec2( 0, -radius);
             positionOffsets[3] = vec2( 0,  radius);
 
             for (int i = 0; i < positionOffsetCount; i++) {
-                vec4 neighbor = texel(particles, wrapToRenderSize(position + positionOffsets[i]));
+                vec4 neighbor = IMG_PIXEL(particles, wrapToRenderSize(position + positionOffsets[i]));
                 UNSCALE_PARTICLE(neighbor);
 
                 // Check if the stored neighbouring particle is closer to this position.
@@ -281,7 +276,9 @@ void main()
         vec2 sensorCounterclockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
         vec2 sensorClockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
 
-        float sensedDirection = pixel(trails, sensorCounterclockwisePosition).x - pixel(trails, sensorClockwisePosition).x;
+        // It’s unclear whether IMG_NORM_PIXEL is doing any interpolation.
+        float sensedDirection = IMG_NORM_PIXEL(trails, sensorCounterclockwisePosition / RENDERSIZE).x -
+                                IMG_NORM_PIXEL(trails, sensorClockwisePosition / RENDERSIZE).x;
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * (x))) - 1.)
 #endif
@@ -307,12 +304,12 @@ void main()
     }
     else if (PASSINDEX == 1) // ShaderToy Buffer B
     {
-        vec4 trail = texel(trails, position);
+        vec4 trail = IMG_PIXEL(trails, position);
 
         // Diffusion
         trail += simulationSpeed * laplacian(trails, position);
 
-        vec4 particle = texel(particles, position);
+        vec4 particle = IMG_PIXEL(particles, position);
         UNSCALE_PARTICLE(particle);
 
         // Pheromone depositing
@@ -329,14 +326,14 @@ void main()
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
-        gl_FragColor = blurProportion * texel(diffuseTrails, position) + (1. - blurProportion) * texel(trails, position);
+        gl_FragColor = blurProportion * IMG_PIXEL(diffuseTrails, position) + (1. - blurProportion) * IMG_PIXEL(trails, position);
         if (FRAMEINDEX < 1 || restart) {
             gl_FragColor = vec4(0);
         }
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
-        vec4 diffuseTrail = 2.5 * texel(diffuseTrails, position);
+        vec4 diffuseTrail = 2.5 * IMG_PIXEL(diffuseTrails, position);
         gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1, 1.2, 1.5)), 1.);
     }
 }
