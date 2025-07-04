@@ -294,7 +294,7 @@ void main()
 
         if (FRAMEINDEX < 1 || restart) {
 #ifndef VIDEOSYNC
-#define round floor
+#define round(x) floor((x) + 0.5)
 #endif
             particle.xy = vec2(pdens * round(position.x / pdens), pdens * round(position.y / pdens));
             particle.zw = hash22(particle.xy) - 0.5;
