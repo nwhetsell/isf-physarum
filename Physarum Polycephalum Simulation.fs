@@ -143,6 +143,18 @@
 }
 */
 
+// These are also interesting defaults on the ISF website:
+//   simulationSpeed: 0.19
+//   trailSize: 6
+//   trailDecay: 0.51
+//   particleSpeed: 24.9
+//   particleSpeedRandomness: 0
+//   particleCloneFactor: 2.7
+//   sensorDistance: 8.49
+//   sensorStrength: 11.84
+//   sensorAngle: 3.4
+//   angleDifferenceFactor: 3
+
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This seems to be impossible in an ISF shader; ISF shaders
 // clamp image pixels to be between 0 and 1. Consequently, we must scale
