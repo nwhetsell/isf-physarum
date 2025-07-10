@@ -169,7 +169,7 @@
 
 // This should be an input variable, but the shader doesn’t initialize correctly
 // unless this is a #define.
-#define pdens 2.
+#define PARTICLE_DENSITY 2.
 
 // Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
@@ -308,7 +308,7 @@ void main()
 #ifndef VIDEOSYNC
 #define round(x) floor((x) + 0.5)
 #endif
-            particle.xy = vec2(pdens * round(position.x / pdens), pdens * round(position.y / pdens));
+            particle.xy = vec2(PARTICLE_DENSITY * round(position.x / PARTICLE_DENSITY), PARTICLE_DENSITY * round(position.y / PARTICLE_DENSITY));
             particle.zw = hash22(particle.xy) - 0.5;
         }
 
