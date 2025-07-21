@@ -208,17 +208,6 @@ float gauss(vec2 x, float r)
     return exp(-pow(length(x) / r, 2.));
 }
 
-// Laplacian operator
-vec4 laplacian(sampler2D image, vec2 position)
-{
-    vec3 dx = vec3(-1, 0, 1);
-    return IMG_PIXEL(image, position + dx.xy) +
-           IMG_PIXEL(image, position + dx.yx) +
-           IMG_PIXEL(image, position + dx.zy) +
-           IMG_PIXEL(image, position + dx.yz) -
-           4. * IMG_PIXEL(image, position);
-}
-
 
 // This is the `loop` function in Buffer A of the original ShaderToy shader.
 vec2 wrapToRenderSize(vec2 position)
@@ -320,7 +309,19 @@ void main()
         vec4 trail = IMG_PIXEL(trails, position);
 
         // Diffusion
-        trail += simulationSpeed * laplacian(trails, position);
+
+        // This is the `Laplace` function in Common of the original ShaderToy
+        // shader. In the jit.gl.isf Max object (available with the ISF
+        // package), it seems that IMG_PIXEL cannot be used outside the GLSL
+        // main function, so we just inline the Laplace function here.
+        vec3 dx = vec3(-1., 0., 1.);
+        vec4 laplacian = IMG_PIXEL(trails, position + dx.xy) +
+                         IMG_PIXEL(trails, position + dx.yx) +
+                         IMG_PIXEL(trails, position + dx.zy) +
+                         IMG_PIXEL(trails, position + dx.yz) -
+                         4. * IMG_PIXEL(trails, position);
+
+        trail += simulationSpeed * laplacian;
 
         vec4 particle = IMG_PIXEL(particles, position);
         UNSCALE_PARTICLE(particle);
