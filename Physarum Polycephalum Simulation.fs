@@ -169,7 +169,7 @@
 
 // This should be an input variable, but the shader doesn’t initialize correctly
 // unless this is a #define.
-#define PARTICLE_DENSITY 2.
+#define PARTICLE_DENSITY 1.
 
 // Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
@@ -310,10 +310,10 @@ void main()
 
         // Diffusion
 
-        // This is the `Laplace` function in Common of the original ShaderToy
-        // shader. In the jit.gl.isf Max object (available with the ISF
-        // package), it seems that IMG_PIXEL cannot be used outside the GLSL
-        // main function, so we just inline the Laplace function here.
+        // This is the `Laplace` function in the Common tab of the original
+        // ShaderToy shader. In the jit.gl.isf Max object (available with the
+        // ISF package), it seems that IMG_PIXEL cannot be used outside the GLSL
+        // main function, so inline the `Laplace` function here.
         vec3 dx = vec3(-1., 0., 1.);
         vec4 laplacian = IMG_PIXEL(trails, position + dx.xy) +
                          IMG_PIXEL(trails, position + dx.yx) +
