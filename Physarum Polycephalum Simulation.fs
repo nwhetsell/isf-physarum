@@ -249,10 +249,10 @@ void main()
             //    https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Array_constructors
             const int positionOffsetCount = 4;
             vec2 positionOffsets[positionOffsetCount];
-            positionOffsets[0] = vec2(-radius,  0);
-            positionOffsets[1] = vec2( radius,  0);
-            positionOffsets[2] = vec2( 0, -radius);
-            positionOffsets[3] = vec2( 0,  radius);
+            positionOffsets[0] = vec2(-radius,  0.);
+            positionOffsets[1] = vec2( radius,  0.);
+            positionOffsets[2] = vec2( 0., -radius);
+            positionOffsets[3] = vec2( 0.,  radius);
 
             for (int i = 0; i < positionOffsetCount; i++) {
                 vec4 neighbor = IMG_PIXEL(particles, wrapToRenderSize(position + positionOffsets[i]));
@@ -334,7 +334,7 @@ void main()
         trail -= simulationSpeed * trailDecay * trail;
 
         if (FRAMEINDEX < 1 || restart) {
-            trail = vec4(0);
+            trail = vec4(0.);
         }
 
         gl_FragColor = trail;
@@ -343,12 +343,12 @@ void main()
     {
         gl_FragColor = blurProportion * IMG_PIXEL(diffuseTrails, position) + (1. - blurProportion) * IMG_PIXEL(trails, position);
         if (FRAMEINDEX < 1 || restart) {
-            gl_FragColor = vec4(0);
+            gl_FragColor = vec4(0.);
         }
     }
     else if (PASSINDEX == 3) // ShaderToy Image
     {
         vec4 diffuseTrail = 2.5 * IMG_PIXEL(diffuseTrails, position);
-        gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1, 1.2, 1.5)), 1.);
+        gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1., 1.2, 1.5)), 1.);
     }
 }
