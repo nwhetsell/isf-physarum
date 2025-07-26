@@ -169,7 +169,7 @@
 
 // This should be an input variable, but the shader doesn’t initialize correctly
 // unless this is a #define.
-#define PARTICLE_DENSITY 1.
+#define PARTICLE_DENSITY 2.
 
 // Hash functions (https://www.shadertoy.com/view/4djSRW)
 float hash11(float p)
