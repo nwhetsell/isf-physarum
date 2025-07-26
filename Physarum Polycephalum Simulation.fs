@@ -126,15 +126,18 @@
     "PASSES": [
         {
             "TARGET": "particles",
-            "PERSISTENT": true
+            "PERSISTENT": true,
+            "FLOAT": true
         },
         {
             "TARGET": "trails",
-            "PERSISTENT": true
+            "PERSISTENT": true,
+            "FLOAT": true
         },
         {
             "TARGET": "diffuseTrails",
-            "PERSISTENT": true
+            "PERSISTENT": true,
+            "FLOAT": true
         },
         {
 
@@ -156,12 +159,18 @@
 //   angleDifferenceFactor: 3
 
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
-// an image buffer. This seems to be impossible in an ISF shader; ISF shaders
-// clamp image pixels to be between 0 and 1. Consequently, we must scale
-// particle data to be between 0 and 1 when writing them to an image, and
-// unscale particle data when reading from an image.
+// an image buffer. This is impossible without floating-point buffers; ISF
+// shaders clamp 8-bit buffers to be between 0 and 1. Consequently, unless
+// floating-point buffers are available, we must scale particle data to be
+// between 0 and 1 when writing them to an image, and unscale particle data when
+// reading from an image.
+#ifdef VIDEOSYNC
+#define SCALE_PARTICLE(PARTICLE) // do nothing
+#define UNSCALE_PARTICLE(PARTICLE) // do nothing
+#else
 #define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= RENDERSIZE; PARTICLE.zw += 0.5;
 #define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= RENDERSIZE; PARTICLE.zw -= 0.5;
+#endif
 
 //
 // ShaderToy Common
