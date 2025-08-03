@@ -353,7 +353,7 @@ void main()
             gl_FragColor = vec4(0.);
         }
     }
-    else if (PASSINDEX == 3) // ShaderToy Image
+    else // ShaderToy Image
     {
         vec4 diffuseTrail = 2.5 * IMG_PIXEL(diffuseTrails, position);
         gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1., 1.2, 1.5)), 1.);
