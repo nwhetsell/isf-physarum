@@ -13,7 +13,7 @@
         {
             "NAME": "mouse",
             "TYPE": "point2D",
-            "DEFAULT": [1, 1],
+            "DEFAULT": [0.8, 0.05],
             "MIN": [0, 0],
             "MAX": [1, 1]
         },
