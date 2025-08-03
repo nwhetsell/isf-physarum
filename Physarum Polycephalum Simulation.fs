@@ -282,8 +282,8 @@ void main()
         }
 
         // Sensors
-        vec2 sensorCounterclockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
-        vec2 sensorClockwisePosition = particle.xy + sensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
+        vec2 sensorCounterclockwisePosition = particle.xy + scaledSensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
+        vec2 sensorClockwisePosition = particle.xy + scaledSensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
 
         // It’s unclear whether IMG_NORM_PIXEL is doing any interpolation.
         float sensedDirection = IMG_NORM_PIXEL(trails, sensorCounterclockwisePosition / RENDERSIZE).x -
@@ -291,7 +291,7 @@ void main()
 #ifndef VIDEOSYNC
 #define tanh(x) (2. / (1. + exp(-2. * (x))) - 1.)
 #endif
-        particle.z += simulationSpeed * sensorStrength * tanh(sensedDirectionFactor * sensedDirection);
+        particle.z += simulationSpeed * scaledSensorStrength * tanh(sensedDirectionFactor * sensedDirection);
 
         vec2 particleVelocity = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
