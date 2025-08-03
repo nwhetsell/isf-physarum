@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="456" alt="Screenshot" src="https://github.com/user-attachments/assets/36c072bb-0aa6-4c09-8cd6-ab533a53060f" />
+</p>
+
 This is an [ISF shader](https://isf.video) for simulating the slime mold
 _Physarum polycephalum_. The simulation is based “Characteristics of pattern
 formation and evolution in approximations of physarum transport networks” by
