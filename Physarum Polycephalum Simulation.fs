@@ -158,6 +158,11 @@
 //   sensorAngle: 3.4
 //   angleDifferenceFactor: 3
 
+// Function from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
+vec2 polar2cart(in vec2 polar) {
+    return vec2(cos(polar.x), sin(polar.x)) * polar.y;
+}
+
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This is impossible without floating-point buffers; ISF
 // shaders clamp 8-bit buffers to be between 0 and 1. Consequently, unless
@@ -256,10 +261,10 @@ void main()
             //    https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Array_constructors
             const int positionOffsetCount = 4;
             vec2 positionOffsets[positionOffsetCount];
-            positionOffsets[0] = vec2(-radius,  0.);
-            positionOffsets[1] = vec2( radius,  0.);
-            positionOffsets[2] = vec2( 0., -radius);
-            positionOffsets[3] = vec2( 0.,  radius);
+            positionOffsets[0] = vec2(-radius,  0);
+            positionOffsets[1] = vec2( radius,  0);
+            positionOffsets[2] = vec2( 0, -radius);
+            positionOffsets[3] = vec2( 0,  radius);
 
             for (int i = 0; i < positionOffsetCount; i++) {
                 vec4 neighbor = IMG_PIXEL(particles, wrapToRenderSize(position + positionOffsets[i]));
@@ -282,8 +287,8 @@ void main()
         }
 
         // Sensors
-        vec2 sensorCounterclockwisePosition = particle.xy + scaledSensorDistance * vec2(cos(particle.z + sensorAngle), sin(particle.z + sensorAngle));
-        vec2 sensorClockwisePosition = particle.xy + scaledSensorDistance * vec2(cos(particle.z - sensorAngle), sin(particle.z - sensorAngle));
+        vec2 sensorCounterclockwisePosition = particle.xy + polar2cart(vec2(particle.z + sensorAngle, scaledSensorDistance));
+        vec2 sensorClockwisePosition = particle.xy + polar2cart(vec2(particle.z - sensorAngle, scaledSensorDistance));
 
         // It’s unclear whether IMG_NORM_PIXEL is doing any interpolation.
         float sensedDirection = IMG_NORM_PIXEL(trails, sensorCounterclockwisePosition / RENDERSIZE).x -
@@ -293,7 +298,7 @@ void main()
 #endif
         particle.z += simulationSpeed * scaledSensorStrength * tanh(sensedDirectionFactor * sensedDirection);
 
-        vec2 particleVelocity = particleSpeed * vec2(cos(particle.z), sin(particle.z)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
+        vec2 particleVelocity = polar2cart(vec2(particle.z, particleSpeed)) + particleSpeedRandomness * (hash22(particle.xy + TIME) - 0.5);
 
         // Update the particle
         particle.xy += simulationSpeed * particleVelocity;
@@ -322,7 +327,7 @@ void main()
         // ShaderToy shader. In the jit.gl.isf Max object (available with the
         // ISF package), it seems that IMG_PIXEL cannot be used outside the GLSL
         // main function, so inline the `Laplace` function here.
-        vec3 dx = vec3(-1., 0., 1.);
+        vec3 dx = vec3(-1, 0, 1);
         vec4 laplacian = IMG_PIXEL(trails, position + dx.xy) +
                          IMG_PIXEL(trails, position + dx.yx) +
                          IMG_PIXEL(trails, position + dx.zy) +
@@ -341,8 +346,10 @@ void main()
         trail -= simulationSpeed * trailDecay * trail;
 
         if (FRAMEINDEX < 1 || restart) {
-            trail = vec4(0.);
+            trail = vec4(0);
         }
+
+        // trail *= IMG_PIXEL(inputImage, position);
 
         gl_FragColor = trail;
     }
@@ -350,12 +357,12 @@ void main()
     {
         gl_FragColor = blurProportion * IMG_PIXEL(diffuseTrails, position) + (1. - blurProportion) * IMG_PIXEL(trails, position);
         if (FRAMEINDEX < 1 || restart) {
-            gl_FragColor = vec4(0.);
+            gl_FragColor = vec4(0);
         }
     }
     else // ShaderToy Image
     {
         vec4 diffuseTrail = 2.5 * IMG_PIXEL(diffuseTrails, position);
-        gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1., 1.2, 1.5)), 1.);
+        gl_FragColor = vec4(sin(diffuseTrail.xyz * vec3(1, 1.2, 1.5)), 1);
     }
 }
