@@ -1,10 +1,23 @@
 /*{
     "CATEGORIES": [
+        "Filter",
         "Generator"
     ],
     "CREDIT": "Mykhailo Moroz <https://www.shadertoy.com/user/michael0884>",
     "DESCRIPTION": "Voronoi particle tracking to simulate dynamics of slime mold, converted from <https://www.shadertoy.com/view/tlKGDh>",
     "INPUTS": [
+        {
+            "NAME" : "inputImage",
+            "TYPE" : "image"
+        },
+        {
+            "NAME": "inputImageAmount",
+            "LABEL": "Input image amount",
+            "TYPE": "float",
+            "DEFAULT": 0,
+            "MIN": 0,
+            "MAX": 1
+        },
         {
             "NAME": "restart",
             "LABEL": "Restart",
@@ -349,9 +362,7 @@ void main()
             trail = vec4(0);
         }
 
-        // trail *= IMG_PIXEL(inputImage, position);
-
-        gl_FragColor = trail;
+        gl_FragColor = (1. - inputImageAmount) * trail + inputImageAmount * IMG_PIXEL(inputImage, position);
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
