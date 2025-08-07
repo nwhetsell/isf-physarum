@@ -171,10 +171,14 @@
 //   sensorAngle: 3.4
 //   angleDifferenceFactor: 3
 
-// Function from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
+#define INV_SQRT_2 0.7071067811865475244008443621048
+
+// Functions from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
 vec2 polar2cart(in vec2 polar) {
     return vec2(cos(polar.x), sin(polar.x)) * polar.y;
 }
+
+float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s)); }
 
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This is impossible without floating-point buffers; ISF
@@ -224,13 +228,6 @@ vec2 hash22(vec2 p)
 	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.xx + p3.yz) * p3.zy);
-}
-
-
-// Functions
-float gauss(vec2 x, float r)
-{
-    return exp(-pow(length(x) / r, 2.));
 }
 
 
@@ -355,7 +352,7 @@ void main()
         UNSCALE_PARTICLE(particle);
 
         // Pheromone depositing
-        trail += simulationSpeed * gauss(position - particle.xy, trailSize);
+        trail += simulationSpeed * gaussian(position - particle.xy, trailSize * INV_SQRT_2);
 
         // Pheromone decay
         trail -= simulationSpeed * trailDecay * trail;
