@@ -322,8 +322,10 @@ void main()
 #ifndef VIDEOSYNC
 #define round(x) floor((x) + 0.5)
 #endif
-            particle.xy = vec2(INITIAL_PARTICLE_DENSITY * round(position.x / INITIAL_PARTICLE_DENSITY),
-                               INITIAL_PARTICLE_DENSITY * round(position.y / INITIAL_PARTICLE_DENSITY));
+            particle.xy = vec2(
+                INITIAL_PARTICLE_DENSITY * round(position.x / INITIAL_PARTICLE_DENSITY),
+                INITIAL_PARTICLE_DENSITY * round(position.y / INITIAL_PARTICLE_DENSITY)
+            );
             particle.zw = hash22(particle.xy) - 0.5;
         }
 
