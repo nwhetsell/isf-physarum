@@ -174,11 +174,11 @@
 #define INV_SQRT_2 0.7071067811865475244008443621048
 
 // Functions from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
+float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s)); }
+
 vec2 polar2cart(in vec2 polar) {
     return vec2(cos(polar.x), sin(polar.x)) * polar.y;
 }
-
-float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s)); }
 
 // In the ShaderToy shader, values less than 0 and greater than 1 are written to
 // an image buffer. This is impossible without floating-point buffers; ISF
@@ -193,6 +193,7 @@ float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s
 #define SCALE_PARTICLE(PARTICLE) PARTICLE.xy /= RENDERSIZE; PARTICLE.zw += 0.5;
 #define UNSCALE_PARTICLE(PARTICLE) PARTICLE.xy *= RENDERSIZE; PARTICLE.zw -= 0.5;
 #endif
+
 
 //
 // ShaderToy Common
