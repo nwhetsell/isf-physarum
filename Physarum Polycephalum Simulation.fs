@@ -127,6 +127,14 @@
             "MIN": 1
         },
         {
+            "NAME": "radiusFactor",
+            "LABEL": "Radius factor",
+            "TYPE": "float",
+            "DEFAULT": 0,
+            "MAX": 10,
+            "MIN": 0
+        },
+        {
             "NAME": "blurProportion",
             "LABEL": "Blur proportion",
             "TYPE": "float",
@@ -173,7 +181,9 @@
 
 #define INV_SQRT_2 0.7071067811865475244008443621048
 
-// Functions from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
+// Constants and functions from LYGIA <https://github.com/patriciogonzalezvivo/lygia>
+#define PI 3.1415926535897932384626433832795
+
 float gaussian( vec2 d, float s) { return exp(-( d.x*d.x + d.y*d.y) / (2.0 * s*s)); }
 
 vec2 polar2cart(in vec2 polar) {
@@ -315,6 +325,14 @@ void main()
         particle.xy += simulationSpeed * particleVelocity;
 
         particle.xy = wrapToRenderSize(particle.xy);
+
+        if (radiusFactor > 0.) {
+            float minDimension = radiusFactor * min(halfSize.x, halfSize.y);
+            if (length(halfSize - particle.xy) > minDimension) {
+                particle.xy = minDimension * normalize(particle.xy - halfSize) + halfSize;
+                particle.z += PI;
+            }
+        }
 
         if (FRAMEINDEX < 1 || restart) {
 #ifndef VIDEOSYNC
