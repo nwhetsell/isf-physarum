@@ -11,6 +11,7 @@ is another excellent resource. This particular shader is converted from these
 ShaderToy shaders by [**@MichaelMoroz**](https://github.com/MichaelMoroz):
 * [Physarum Polycephalum Simulation](https://www.shadertoy.com/view/tlKGDh)
 * [Physarum Circular](https://www.shadertoy.com/view/wtKGW1)
+* [Mold van Damme ](https://www.shadertoy.com/view/wdsfzN)
 
 This is a multi-pass shader that is intended to be used with floating-point
 buffers. Not all ISF hosts support floating-point buffers.
