@@ -19,6 +19,12 @@
             "MAX": 1
         },
         {
+            "NAME": "decayInputImage",
+            "LABEL": "Decay input image",
+            "TYPE": "bool",
+            "DEFAULT": true
+        },
+        {
             "NAME": "restart",
             "LABEL": "Restart",
             "TYPE": "event"
@@ -371,7 +377,11 @@ void main()
         UNSCALE_PARTICLE(particle);
 
         // Pheromone depositing
-        trail += simulationSpeed * gaussian(position - particle.xy, trailSize * INV_SQRT_2);
+        float depositRate = gaussian(position - particle.xy, trailSize * INV_SQRT_2);
+        if (decayInputImage) {
+            depositRate += inputImageAmount * length(IMG_PIXEL(inputImage, position).rgb);
+        }
+        trail += simulationSpeed * depositRate;
 
         // Pheromone decay
         trail -= simulationSpeed * trailDecay * trail;
@@ -380,7 +390,11 @@ void main()
             trail = vec4(0);
         }
 
-        gl_FragColor = (1. - inputImageAmount) * trail + inputImageAmount * IMG_PIXEL(inputImage, position);
+        if (decayInputImage) {
+            gl_FragColor = trail;
+        } else {
+            gl_FragColor = (1. - inputImageAmount) * trail + inputImageAmount * IMG_PIXEL(inputImage, position);
+        }
     }
     else if (PASSINDEX == 2) // ShaderToy Buffer C
     {
